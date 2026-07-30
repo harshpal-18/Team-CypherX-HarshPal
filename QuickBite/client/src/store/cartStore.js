@@ -8,6 +8,11 @@ const useCartStore = create(
       orderType: 'Dine In', // 'Dine In' | 'Take Away' | 'Parcel'
       promoApplied: false,
       promoDiscount: 0,
+      isOpen: false,
+
+      openCart: () => set({ isOpen: true }),
+      closeCart: () => set({ isOpen: false }),
+      toggleCart: () => set(s => ({ isOpen: !s.isOpen })),
 
       addItem: (food) => {
         const existing = get().items.find(i => i.id === food.id);

@@ -8,6 +8,7 @@ import useAuthStore from './store/authStore';
 
 // Components
 import ToastContainer from './components/ToastContainer';
+import CartSidebar from './components/CartSidebar'; // adjust path if CartSidebar lives elsewhere
 
 // Pages - Landing & Auth
 import LandingPage   from './pages/LandingPage';
@@ -55,6 +56,7 @@ function App() {
   return (
     <BrowserRouter>
       <ToastContainer />
+      <CartSidebar />
       <Routes>
         {/* Public */}
         <Route path="/" element={<LandingPage />} />

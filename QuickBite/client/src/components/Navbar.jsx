@@ -12,7 +12,7 @@ const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const { user, role, isAuthenticated, logout } = useAuthStore();
-  const { getItemCount } = useCartStore();
+  const { getItemCount, toggleCart } = useCartStore();
   const { darkMode, toggleDarkMode } = useUiStore();
   const { notifications } = useOrderStore();
   const navigate = useNavigate();
@@ -99,7 +99,7 @@ const Navbar = () => {
 
               {/* Cart (customers only) */}
               {role === 'customer' && (
-                <Link to="/customer/cart" className="relative btn-ghost p-2 rounded-xl">
+                <button onClick={toggleCart} className="relative btn-ghost p-2 rounded-xl">
                   <ShoppingCart className="w-5 h-5" />
                   {cartCount > 0 && (
                     <motion.span
@@ -108,7 +108,7 @@ const Navbar = () => {
                       className="absolute -top-1 -right-1 w-5 h-5 bg-primary-500 text-white text-xs rounded-full flex items-center justify-center font-bold"
                     >{cartCount}</motion.span>
                   )}
-                </Link>
+                </button>
               )}
 
               {/* Profile Dropdown */}
@@ -179,7 +179,9 @@ const Navbar = () => {
               {isAuthenticated && role === 'customer' && (
                 <>
                   <Link to="/customer/menu"          className="nav-link py-2">Menu</Link>
-                  <Link to="/customer/cart"          className="nav-link py-2">Cart {cartCount > 0 && `(${cartCount})`}</Link>
+                  <button onClick={() => { toggleCart(); setMobileOpen(false); }} className="nav-link py-2 text-left w-full">
+                    Cart {cartCount > 0 && `(${cartCount})`}
+                  </button>
                   <Link to="/customer/orders"        className="nav-link py-2">My Orders</Link>
                   <Link to="/customer/table-booking" className="nav-link py-2">Book Table</Link>
                   <button onClick={handleLogout} className="text-left text-red-500 py-2 font-medium">Logout</button>

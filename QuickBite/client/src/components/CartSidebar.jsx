@@ -7,8 +7,8 @@ import useUiStore from '../store/uiStore';
 
 const ORDER_TYPES = ['Dine In', 'Take Away', 'Parcel'];
 
-const CartSidebar = ({ open, onClose }) => {
-  const { items, orderType, setOrderType, updateQty, removeItem, getTotal, promoApplied, applyPromo, removePromo } = useCartStore();
+const CartSidebar = () => {
+  const { items, orderType, setOrderType, updateQty, removeItem, getTotal, promoApplied, applyPromo, removePromo, isOpen, closeCart } = useCartStore();
   const { addToast } = useUiStore();
   const [promoInput, setPromoInput] = React.useState('');
   const { subtotal, discount, taxes, total } = getTotal();
@@ -21,11 +21,11 @@ const CartSidebar = ({ open, onClose }) => {
 
   return (
     <AnimatePresence>
-      {open && (
+      {isOpen && (
         <>
           {/* Backdrop */}
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40" onClick={onClose} />
+            className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40" onClick={closeCart} />
           {/* Drawer */}
           <motion.div
             initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
@@ -39,7 +39,7 @@ const CartSidebar = ({ open, onClose }) => {
                 <h2 className="font-display font-bold text-lg text-gray-900 dark:text-white">Your Cart</h2>
                 {items.length > 0 && <span className="w-5 h-5 bg-primary-500 text-white text-xs rounded-full flex items-center justify-center font-bold">{items.length}</span>}
               </div>
-              <button onClick={onClose} className="btn-ghost p-2"><X className="w-5 h-5" /></button>
+              <button onClick={closeCart} className="btn-ghost p-2"><X className="w-5 h-5" /></button>
             </div>
 
             {/* Order Type */}
@@ -68,7 +68,7 @@ const CartSidebar = ({ open, onClose }) => {
                     <p className="font-semibold text-gray-700 dark:text-gray-200">Your cart is empty</p>
                     <p className="text-sm text-gray-400 mt-1">Add delicious items from the menu!</p>
                   </div>
-                  <button onClick={onClose} className="btn-primary text-sm py-2.5">Browse Menu</button>
+                  <button onClick={closeCart} className="btn-primary text-sm py-2.5">Browse Menu</button>
                 </div>
               ) : items.map(item => (
                 <motion.div key={item.id} layout initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}
@@ -121,7 +121,7 @@ const CartSidebar = ({ open, onClose }) => {
                     <span>Total</span><span className="gradient-text">₹{total}</span>
                   </div>
                 </div>
-                <Link to="/customer/payment" onClick={onClose}
+                <Link to="/customer/payment" onClick={closeCart}
                   className="btn-primary w-full justify-center text-base py-3.5">
                   Proceed to Pay <ArrowRight className="w-4 h-4" />
                 </Link>

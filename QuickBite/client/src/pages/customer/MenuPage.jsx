@@ -3,7 +3,6 @@ import { motion } from 'framer-motion';
 import { Search, SlidersHorizontal, X, ShoppingCart, ChevronDown } from 'lucide-react';
 import Navbar from '../../components/Navbar';
 import FoodCard from '../../components/FoodCard';
-import CartSidebar from '../../components/CartSidebar';
 import LoadingSkeleton from '../../components/LoadingSkeleton';
 import useMenuStore from '../../store/menuStore';
 import useCartStore from '../../store/cartStore';
@@ -18,14 +17,13 @@ const SORT_OPTIONS = [
 ];
 
 const MenuPage = () => {
-  const [cartOpen, setCartOpen] = useState(false);
   const [loading] = useState(false);
   const {
     searchQuery, selectedCategory, sortBy, filterVeg, filterNonVeg, filterPopular, filterSpecial,
     setSearchQuery, setCategory, setSortBy, toggleVeg, toggleNonVeg, togglePopular, toggleSpecial, resetFilters,
     getFilteredFoods,
   } = useMenuStore();
-  const { getItemCount } = useCartStore();
+  const { getItemCount, openCart } = useCartStore();
   const foods = getFilteredFoods();
   const cartCount = getItemCount();
 
@@ -44,7 +42,7 @@ const MenuPage = () => {
               <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">{foods.length} items available</p>
             </div>
             {/* Cart FAB */}
-            <button onClick={() => setCartOpen(true)}
+            <button onClick={openCart}
               className="relative inline-flex items-center gap-2 btn-primary py-3 self-start sm:self-auto">
               <ShoppingCart className="w-5 h-5" />
               View Cart
@@ -137,8 +135,6 @@ const MenuPage = () => {
           </div>
         )}
       </div>
-
-      <CartSidebar open={cartOpen} onClose={() => setCartOpen(false)} />
     </div>
   );
 };
