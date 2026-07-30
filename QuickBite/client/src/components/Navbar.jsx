@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingCart, Menu, X, Sun, Moon, Bell, User, LogOut, ChevronDown, Zap } from 'lucide-react';
+import { ShoppingCart, Menu, X, Bell, User, LogOut, ChevronDown, Zap, Crown } from 'lucide-react';
 import useAuthStore from '../store/authStore';
 import useCartStore from '../store/cartStore';
 import useUiStore from '../store/uiStore';
@@ -82,10 +82,18 @@ const Navbar = () => {
 
         {/* Right Actions */}
         <div className="flex items-center gap-2">
-          {/* Dark Mode */}
-          <button onClick={toggleDarkMode} className="btn-ghost p-2 rounded-xl" aria-label="Toggle dark mode">
-            {darkMode ? <Sun className="w-5 h-5 text-yellow-400" /> : <Moon className="w-5 h-5" />}
-          </button>
+          {/* Golden Bite — desktop only, right side */}
+          <Link
+            to="/golden-bite"
+            id="navbar-golden-bite-btn"
+            className="group relative hidden md:inline-flex items-center gap-1.5 px-4 py-2 rounded-xl font-bold text-sm text-black overflow-hidden shadow-[0_0_16px_rgba(234,179,8,0.35)] hover:shadow-[0_0_28px_rgba(234,179,8,0.6)] transition-all duration-300"
+            style={{ background: 'linear-gradient(135deg, #fde68a 0%, #f59e0b 50%, #d97706 100%)' }}
+          >
+            <Crown className="w-4 h-4 fill-black flex-shrink-0" />
+            Golden Bite
+            <span className="absolute inset-0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 bg-white/25 skew-x-12 pointer-events-none" />
+          </Link>
+
 
           {isAuthenticated ? (
             <>
@@ -170,6 +178,16 @@ const Navbar = () => {
               {isLanding && landingLinks.map(l => (
                 <a key={l.label} href={l.href} className="nav-link py-2 text-base">{l.label}</a>
               ))}
+              {/* Golden Bite mobile */}
+              <Link
+                to="/golden-bite"
+                id="mobile-golden-bite-btn"
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm text-black"
+                style={{ background: 'linear-gradient(135deg, #fde68a 0%, #f59e0b 50%, #d97706 100%)' }}
+              >
+                <Crown className="w-4 h-4 fill-black" />
+                Golden Bite
+              </Link>
               {!isAuthenticated && (
                 <>
                   <Link to="/login"  className="btn-outline w-full text-center mt-2">Login</Link>

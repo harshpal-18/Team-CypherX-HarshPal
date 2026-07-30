@@ -23,6 +23,7 @@ import OrdersPage        from './pages/customer/OrdersPage';
 import TableBookingPage  from './pages/customer/TableBookingPage';
 import NotificationsPage from './pages/customer/NotificationsPage';
 import ProfilePage       from './pages/customer/ProfilePage';
+import GoldenBitePage   from './pages/GoldenBitePage';
 
 // Pages - Admin
 import AdminLayout    from './pages/admin/AdminLayout';
@@ -60,6 +61,7 @@ function App() {
       <Routes>
         {/* Public */}
         <Route path="/" element={<LandingPage />} />
+        <Route path="/golden-bite"     element={<GoldenBitePage />} />
         <Route path="/login"  element={<GuestRoute><LoginPage  /></GuestRoute>} />
         <Route path="/signup" element={<GuestRoute><SignupPage /></GuestRoute>} />
 
