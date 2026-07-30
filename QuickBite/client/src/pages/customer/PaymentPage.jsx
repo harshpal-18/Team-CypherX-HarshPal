@@ -56,6 +56,17 @@ const PaymentPage = () => {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
       <Navbar />
       <div className="max-w-2xl mx-auto px-4 pt-24 pb-12">
+        {/* Back to Home */}
+        {step < 3 && (
+          <button
+            onClick={() => navigate('/customer/menu')}
+            className="flex items-center gap-1.5 text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors mb-6"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to Home
+          </button>
+        )}
+
         {/* Progress steps */}
         {step < 3 && (
           <div className="flex items-center gap-2 mb-8">
@@ -246,6 +257,14 @@ const PaymentPage = () => {
                   Order More
                 </button>
               </div>
+
+              <button
+                onClick={() => navigate('/customer/menu')}
+                className="mt-6 flex items-center gap-1.5 text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors mx-auto"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Back to Home
+              </button>
             </motion.div>
           )}
         </AnimatePresence>
