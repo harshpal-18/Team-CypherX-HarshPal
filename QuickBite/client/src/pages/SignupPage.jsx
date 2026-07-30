@@ -10,8 +10,9 @@ const SignupPage = () => {
   const [form, setForm] = useState({ name: '', email: '', phone: '', password: '', confirm: '' });
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [agree, setAgree] = useState(false);
-  const { login } = useAuthStore();
+  const [agree, setAgree]     = useState(false);
+  const [fieldError, setFieldError] = useState('');
+  const { register, login } = useAuthStore();
   const { addToast } = useUiStore();
   const navigate = useNavigate();
 
@@ -19,14 +20,35 @@ const SignupPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setFieldError('');
     if (form.password !== form.confirm) { addToast('Passwords do not match', 'error'); return; }
-    if (form.password.length < 6) { addToast('Password must be at least 6 characters', 'error'); return; }
-    if (!agree) { addToast('Please accept the terms', 'error'); return; }
+    if (form.password.length < 6)       { addToast('Password must be at least 6 characters', 'error'); return; }
+    if (!agree)                         { addToast('Please accept the terms', 'error'); return; }
     setLoading(true);
-    await new Promise(r => setTimeout(r, 1000));
-    login({ name: form.name, email: form.email, phone: form.phone }, 'customer');
-    addToast(`Welcome to Quick Bite, ${form.name}! 🎉`, 'success');
-    navigate('/customer/menu');
+
+    // Try real API first
+    const result = await register({
+      name:     form.name,
+      email:    form.email    || undefined,
+      phone:    form.phone    || undefined,
+      password: form.password,
+      role:     'customer',
+    });
+
+    if (result.success) {
+      addToast(`Welcome to Quick Bite, ${form.name}! 🎉`, 'success');
+      navigate('/customer/menu');
+    } else {
+      // Show server error inline
+      setFieldError(result.message || 'Registration failed');
+      addToast(result.message || 'Registration failed', 'error');
+      // Offline fallback — let them in anyway if server is unreachable
+      if (!result.message || result.message === 'Registration failed') {
+        login({ name: form.name, email: form.email, phone: form.phone }, 'customer');
+        addToast(`Welcome to Quick Bite, ${form.name}! 🎉`, 'success');
+        navigate('/customer/menu');
+      }
+    }
     setLoading(false);
   };
 
@@ -95,6 +117,14 @@ const SignupPage = () => {
                     className="input pl-11" placeholder="Re-enter password" required />
                 </div>
               </div>
+
+              {/* Server field error */}
+              {fieldError && (
+                <p className="text-xs text-red-500 dark:text-red-400 flex items-center gap-1.5 -mt-1">
+                  <span className="w-3.5 h-3.5 rounded-full bg-red-100 dark:bg-red-900/40 flex items-center justify-center text-[10px] font-bold flex-shrink-0">!</span>
+                  {fieldError}
+                </p>
+              )}
 
               <label className="flex items-start gap-2.5 cursor-pointer mt-1">
                 <input type="checkbox" checked={agree} onChange={e => setAgree(e.target.checked)}

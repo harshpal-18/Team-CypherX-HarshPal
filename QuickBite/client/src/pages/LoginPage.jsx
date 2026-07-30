@@ -23,7 +23,7 @@ const LoginPage = () => {
   const [loading, setLoading]   = useState(false);
   const [fieldError, setFieldError] = useState(''); // inline field error
 
-  const { login }    = useAuthStore();
+  const { login, loginWithAPI }    = useAuthStore();
   const { addToast } = useUiStore();
   const navigate     = useNavigate();
 
@@ -43,8 +43,31 @@ const LoginPage = () => {
     e.preventDefault();
     setFieldError('');
     setLoading(true);
-    await new Promise(r => setTimeout(r, 800));
 
+    // Try real API first
+    const result = await loginWithAPI({ identifier, password, role });
+
+    if (result.success) {
+      addToast(`Welcome back! 👋`, 'success');
+      navigate(role === 'admin' ? '/admin' : '/customer/menu');
+      setLoading(false);
+      return;
+    }
+
+    // Server returned a specific message (wrong credentials) — show it
+    if (result.message && result.message !== 'Login failed') {
+      if (result.message.toLowerCase().includes('password')) {
+        setFieldError(result.message);
+      } else {
+        setFieldError(result.message);
+      }
+      addToast(result.message, 'error');
+      setLoading(false);
+      return;
+    }
+
+    // Server is down — fall back to demo account check
+    await new Promise(r => setTimeout(r, 600));
     const demo = DEMO_ACCOUNTS[role];
     const matchByEmail = loginMode === 'email' && identifier === demo.email;
     const matchByPhone = loginMode === 'phone' && identifier.replace(/\s/g, '') === demo.phone;
@@ -54,7 +77,6 @@ const LoginPage = () => {
       addToast(`Welcome back, ${demo.name}! 👋`, 'success');
       navigate(role === 'admin' ? '/admin' : '/customer/menu');
     } else {
-      /* Specific field-level errors */
       if (loginMode === 'email' && identifier !== demo.email) {
         setFieldError('No account found with this email address.');
       } else if (loginMode === 'phone' && identifier.replace(/\s/g, '') !== demo.phone) {
