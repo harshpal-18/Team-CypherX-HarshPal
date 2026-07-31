@@ -412,6 +412,10 @@ npm run server
 | Name         | Role                    |
 | ------------ | ----------------------- |
 | Harsh Pal    | Full Stack Developer    |
+| Shaurya Mishra    | Full Stack Developer    |
+| Aditya Raj    | Full Stack Developer    |
+| Asmit Srivastava    | Full Stack Developer    |
+| Rudra Pandey    | Full Stack Developer    |
 | Team Members | AI • Backend • Frontend |
 
 ---
