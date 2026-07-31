@@ -416,7 +416,6 @@ npm run server
 | Aditya Raj    | Full Stack Developer    |
 | Asmit Srivastava    | Full Stack Developer    |
 | Rudra Pandey    | Full Stack Developer    |
-| Team Members | AI • Backend • Frontend |
 
 ---
 
