@@ -1,30 +1,44 @@
 import axios from 'axios';
 
+// VITE_API_URL should be your Render backend's root URL, e.g.:
+// https://quickbite-server-yu7u.onrender.com
+// (set this in Vercel → Settings → Environment Variables)
+const BASE_URL = `${import.meta.env.VITE_API_URL}/api`;
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
-  headers: { 'Content-Type': 'application/json' },
+  baseURL: BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
 });
 
-// Attach JWT token to every request
+// ── Attach auth token automatically to every request ──────────────────────
+// Reads the token saved by authStore (zustand persist storage key: 'quickbite-auth')
 api.interceptors.request.use((config) => {
-  const raw = localStorage.getItem('quickbite-auth');
-  if (raw) {
-    const state = JSON.parse(raw);
-    const token = state?.state?.token;
-    if (token) config.headers.Authorization = `Bearer ${token}`;
+  try {
+    const stored = localStorage.getItem('quickbite-auth');
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      const token = parsed?.state?.token;
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+    }
+  } catch {
+    // no-op if storage is empty or malformed
   }
   return config;
 });
 
-// Handle 401 — clear auth and redirect to login
+// ── Handle expired/invalid tokens globally ─────────────────────────────────
 api.interceptors.response.use(
-  (res) => res,
-  (err) => {
-    if (err.response?.status === 401) {
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      // Token invalid or expired — clear local auth state
       localStorage.removeItem('quickbite-auth');
-      window.location.href = '/login';
     }
-    return Promise.reject(err);
+    return Promise.reject(error);
   }
 );
 
