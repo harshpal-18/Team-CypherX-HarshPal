@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Zap, Eye, EyeOff, ArrowRight, ChevronLeft, User, Mail, Phone, Lock } from 'lucide-react';
+import { Zap, Eye, EyeOff, ArrowRight, ChevronLeft, User, Mail, Phone, Lock, ShieldCheck } from 'lucide-react';
 import useAuthStore from '../store/authStore';
 import useUiStore from '../store/uiStore';
 import AnnouncementBar from '../components/AnnouncementBar';
 
 const SignupPage = () => {
   const [form, setForm] = useState({ name: '', email: '', phone: '', password: '', confirm: '' });
+  const [role, setRole] = useState('customer'); // 'customer' | 'admin'
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
   const [agree, setAgree]     = useState(false);
@@ -32,21 +33,21 @@ const SignupPage = () => {
       email:    form.email    || undefined,
       phone:    form.phone    || undefined,
       password: form.password,
-      role:     'customer',
+      role,
     });
 
     if (result.success) {
       addToast(`Welcome to Quick Bite, ${form.name}! 🎉`, 'success');
-      navigate('/customer/menu');
+      navigate(role === 'admin' ? '/admin/dashboard' : '/customer/menu');
     } else {
       // Show server error inline
       setFieldError(result.message || 'Registration failed');
       addToast(result.message || 'Registration failed', 'error');
       // Offline fallback — let them in anyway if server is unreachable
       if (!result.message || result.message === 'Registration failed') {
-        login({ name: form.name, email: form.email, phone: form.phone }, 'customer');
+        login({ name: form.name, email: form.email, phone: form.phone }, role);
         addToast(`Welcome to Quick Bite, ${form.name}! 🎉`, 'success');
-        navigate('/customer/menu');
+        navigate(role === 'admin' ? '/admin/dashboard' : '/customer/menu');
       }
     }
     setLoading(false);
@@ -71,6 +72,32 @@ const SignupPage = () => {
 
             <h1 className="font-display font-bold text-2xl text-gray-900 dark:text-white mb-2">Create your account 🚀</h1>
             <p className="text-gray-500 dark:text-gray-400 text-sm mb-7">Join 2,000+ students ordering smarter every day</p>
+
+            {/* Customer / Admin toggle */}
+            <div className="grid grid-cols-2 gap-2 p-1 bg-gray-100 dark:bg-gray-800 rounded-xl mb-6">
+              <button
+                type="button"
+                onClick={() => setRole('customer')}
+                className={`flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-semibold transition-all ${
+                  role === 'customer'
+                    ? 'bg-white dark:bg-gray-900 text-gray-900 dark:text-white shadow-sm'
+                    : 'text-gray-500 dark:text-gray-400'
+                }`}
+              >
+                <User className="w-4 h-4" /> Customer
+              </button>
+              <button
+                type="button"
+                onClick={() => setRole('admin')}
+                className={`flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-semibold transition-all ${
+                  role === 'admin'
+                    ? 'bg-white dark:bg-gray-900 text-primary-600 shadow-sm'
+                    : 'text-gray-500 dark:text-gray-400'
+                }`}
+              >
+                <ShieldCheck className="w-4 h-4" /> Admin
+              </button>
+            </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
@@ -139,7 +166,7 @@ const SignupPage = () => {
                 {loading ? (
                   <span className="flex items-center gap-2"><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Creating account...</span>
                 ) : (
-                  <>Create Account <ArrowRight className="w-4 h-4" /></>
+                  <>Create {role === 'admin' ? 'Admin' : ''} Account <ArrowRight className="w-4 h-4" /></>
                 )}
               </motion.button>
             </form>
