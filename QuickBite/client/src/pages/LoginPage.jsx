@@ -6,11 +6,6 @@ import useAuthStore from '../store/authStore';
 import useUiStore from '../store/uiStore';
 import AnnouncementBar from '../components/AnnouncementBar';
 
-const DEMO_ACCOUNTS = {
-  customer: { email: 'student@college.edu', password: 'student123', name: 'Arjun Sharma', phone: '9876543210' },
-  admin:    { email: 'admin@quickbite.cafe', password: 'admin123',   name: 'Admin',        phone: '9876540000' },
-};
-
 /* Detect if string looks like a phone number */
 const isPhoneNumber = (val) => /^[6-9]\d{9}$/.test(val.replace(/\s/g, ''));
 
@@ -23,7 +18,7 @@ const LoginPage = () => {
   const [loading, setLoading]   = useState(false);
   const [fieldError, setFieldError] = useState(''); // inline field error
 
-  const { login }    = useAuthStore();
+  const { login, loginWithAPI }    = useAuthStore();
   const { addToast } = useUiStore();
   const navigate     = useNavigate();
 
@@ -33,37 +28,26 @@ const LoginPage = () => {
     setFieldError('');
   };
 
-  const fillDemo = () => {
-    setIdentifier(loginMode === 'phone' ? DEMO_ACCOUNTS[role].phone : DEMO_ACCOUNTS[role].email);
-    setPassword(DEMO_ACCOUNTS[role].password);
-    setFieldError('');
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setFieldError('');
     setLoading(true);
-    await new Promise(r => setTimeout(r, 800));
 
-    const demo = DEMO_ACCOUNTS[role];
-    const matchByEmail = loginMode === 'email' && identifier === demo.email;
-    const matchByPhone = loginMode === 'phone' && identifier.replace(/\s/g, '') === demo.phone;
+    const result = await loginWithAPI({ identifier, password, role });
 
-    if ((matchByEmail || matchByPhone) && password === demo.password) {
-      login({ name: demo.name, email: demo.email, phone: demo.phone }, role);
-      addToast(`Welcome back, ${demo.name}! 👋`, 'success');
+    if (result.success) {
+      addToast(`Welcome back! 👋`, 'success');
       navigate(role === 'admin' ? '/admin' : '/customer/menu');
-    } else {
-      /* Specific field-level errors */
-      if (loginMode === 'email' && identifier !== demo.email) {
-        setFieldError('No account found with this email address.');
-      } else if (loginMode === 'phone' && identifier.replace(/\s/g, '') !== demo.phone) {
-        setFieldError('No account found with this phone number.');
-      } else {
-        setFieldError('Incorrect password. Please try again.');
-      }
-      addToast('Sign in failed. Please check your credentials.', 'error');
+      setLoading(false);
+      return;
     }
+
+    // Login failed — show the real server error, or a generic fallback.
+    // (Previously this fell back to a hardcoded demo account, which meant
+    // anyone could log in with demo credentials even if the real backend
+    // was down. Removed for security — auth now always goes through the API.)
+    setFieldError(result.message || 'Unable to sign in. Please try again.');
+    addToast(result.message || 'Sign in failed. Please check your credentials.', 'error');
     setLoading(false);
   };
 
@@ -104,19 +88,6 @@ const LoginPage = () => {
                   {r === 'customer' ? 'Customer' : 'Admin'}
                 </button>
               ))}
-            </div>
-
-            {/* Demo hint */}
-            <div className="flex items-center justify-between px-4 py-3 bg-primary-50 dark:bg-primary-950/40 border border-primary-200 dark:border-primary-800 rounded-2xl mb-5">
-              <div>
-                <p className="text-xs font-semibold text-primary-700 dark:text-primary-400">Demo {role} account</p>
-                <p className="text-xs text-primary-600 dark:text-primary-500">
-                  {loginMode === 'phone' ? DEMO_ACCOUNTS[role].phone : DEMO_ACCOUNTS[role].email}
-                </p>
-              </div>
-              <button onClick={fillDemo} className="text-xs font-bold text-primary-600 dark:text-primary-400 bg-primary-100 dark:bg-primary-900/50 hover:bg-primary-200 px-3 py-1.5 rounded-xl transition-colors">
-                Autofill
-              </button>
             </div>
 
             {/* ── Login mode toggle ── */}

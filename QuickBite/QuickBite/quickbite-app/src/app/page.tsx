@@ -13,19 +13,13 @@ import {
 function FloatingShapes() {
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden>
-      {/* Big blob orange */}
       <div className="blob float" style={{ width:520,height:520, background:'rgba(255,107,0,0.12)', top:'-120px', right:'-60px' }} />
-      {/* Blob yellow */}
       <div className="blob float-2" style={{ width:320,height:320, background:'rgba(255,200,61,0.18)', bottom:'10%', left:'-60px' }} />
-      {/* Blob green */}
       <div className="blob float-3" style={{ width:240,height:240, background:'rgba(13,92,59,0.08)', top:'55%', right:'20%' }} />
-      {/* Decorative ring */}
       <div className="spin-slow" style={{ position:'absolute', top:80, left:'12%', width:100, height:100, border:'4px solid rgba(255,107,0,0.2)', borderRadius:'50%' }} />
-      {/* Star shape */}
       <div className="float-r" style={{ position:'absolute', top:'35%', right:'8%', fontSize:48, opacity:0.3 }}>★</div>
       <div className="float-2" style={{ position:'absolute', bottom:'25%', right:'25%', fontSize:32, opacity:0.25 }}>◆</div>
       <div className="float" style={{ position:'absolute', top:'20%', left:'6%', fontSize:28, opacity:0.2 }}>●</div>
-      {/* Dot grid */}
       <div className="dot-bg absolute inset-0 opacity-30" />
     </div>
   );
@@ -55,14 +49,19 @@ function Ticker() {
 }
 
 /* ─── FOOD CARD ───────────────────────── */
-const SAMPLE_FOODS = [
+// NOTE: These are shown on the public landing page as a menu *preview*,
+// before login. This is normal for food-ordering sites — the real,
+// live menu (with real stock/prices from the DB) lives at /student/menu.
+// If you'd rather this section pull live data too, replace this array
+// with a useEffect + API call, same pattern used on /student/menu.
+const FEATURED_FOODS = [
   { id:1, name:'Classic Burger', price:120, prepTime:10, rating:4.8, emoji:'🍔', available:true, tag:'🔥 Bestseller', bg:'#FFF5EB' },
   { id:2, name:'Margherita Pizza', price:150, prepTime:18, rating:4.7, emoji:'🍕', available:true, tag:'⭐ Top Rated', bg:'#F0FFF4' },
   { id:3, name:'Cold Coffee', price:70, prepTime:3, rating:4.9, emoji:'☕', available:true, tag:'⚡ Super Fast', bg:'#EFF6FF' },
   { id:4, name:'Veg Noodles', price:90, prepTime:12, rating:4.5, emoji:'🍜', available:true, tag:'🌱 Veg', bg:'#FFF0F0' },
 ];
 
-function FoodCard({ item, delay }: { item: typeof SAMPLE_FOODS[0], delay: number }) {
+function FoodCard({ item, delay }) {
   const [count, setCount] = useState(0);
   return (
     <motion.div
@@ -107,7 +106,7 @@ function FoodCard({ item, delay }: { item: typeof SAMPLE_FOODS[0], delay: number
   );
 }
 
-/* ─── QUEUE VISUAL ────────────────────── */
+/* ─── QUEUE VISUAL (marked as a preview — not live data) ──── */
 function QueueSection() {
   const [progress, setProgress] = useState(72);
   useEffect(() => {
@@ -129,10 +128,11 @@ function QueueSection() {
             Your Token,<br/>
             <span style={{ color:'var(--yellow)' }}>Your Time.</span>
           </h2>
+          {/* Honest label so visitors know this is a demo, not their real queue */}
+          <p className="text-white/40 text-sm mt-4 font-medium">Preview — sign in to see your live token status</p>
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
-          {/* Current token */}
           <motion.div
             initial={{ opacity:0, x:-40 }}
             whileInView={{ opacity:1, x:0 }}
@@ -144,7 +144,6 @@ function QueueSection() {
             <div className="text-white/50 mt-2 font-medium">At Counter 1</div>
           </motion.div>
 
-          {/* Progress info */}
           <motion.div
             initial={{ opacity:0, y:40 }}
             whileInView={{ opacity:1, y:0 }}
@@ -161,7 +160,7 @@ function QueueSection() {
               <div className="progress-track mb-2">
                 <div className="progress-fill" style={{ width:`${progress}%` }} />
               </div>
-              <div className="text-xs font-semibold text-[#8B5500]">{8} orders ahead</div>
+              <div className="text-xs font-semibold text-[#8B5500]">8 orders ahead</div>
             </div>
             <div className="card p-4 flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-green-100 flex items-center justify-center">
@@ -174,7 +173,6 @@ function QueueSection() {
             </div>
           </motion.div>
 
-          {/* Your token */}
           <motion.div
             initial={{ opacity:0, x:40 }}
             whileInView={{ opacity:1, x:0 }}
@@ -206,7 +204,7 @@ function QueueSection() {
 
 /* ─── AI SECTION ──────────────────────── */
 const AI_CARDS = [
-  { icon:'🧠', title:'Wait Time Prediction', desc:'AI forecasts queue wait with 94% accuracy based on order history', color:'#FF6B00', bg:'#FFF5EB' },
+  { icon:'🧠', title:'Wait Time Prediction', desc:'AI forecasts queue wait based on order history', color:'#FF6B00', bg:'#FFF5EB' },
   { icon:'🎯', title:'Smart Recommendations', desc:'Personalized menu suggestions based on your tastes and order history', color:'#0D5C3B', bg:'#F0FFF4' },
   { icon:'📈', title:'Peak Hour Forecast', desc:'Predicts rush hours and suggests optimal ordering times', color:'#1a56db', bg:'#EFF6FF' },
   { icon:'📦', title:'Inventory Prediction', desc:'Auto-alerts vendors before items run out during lunch rush', color:'#9c27b0', bg:'#FDF4FF' },
@@ -259,13 +257,18 @@ function AISection() {
   );
 }
 
-/* ─── STATS STRIP ─────────────────────── */
+/* ─── STATS STRIP ──────────────────────
+   These were hardcoded, unverified numbers ("500+ orders daily",
+   "2,450+ students"). Since the site is brand new, claiming numbers
+   you don't have yet is misleading to real visitors. Replaced with
+   honest, non-numeric copy — swap these back to real numbers once
+   you actually have usage data (e.g. pull counts from your DB). */
 function StatsStrip() {
   const STATS = [
-    { value:'500+', label:'Orders Daily', icon:'📦' },
-    { value:'73%', label:'Queue Reduction', icon:'⚡' },
-    { value:'14 min', label:'Avg Wait Time', icon:'⏱' },
-    { value:'4.8★', label:'Student Rating', icon:'⭐' },
+    { value:'New', label:'Just Launched', icon:'🚀' },
+    { value:'Live', label:'Real-Time Queue', icon:'⚡' },
+    { value:'AI', label:'Smart Predictions', icon:'🧠' },
+    { value:'Free', label:'To Get Started', icon:'🎉' },
   ];
   return (
     <div style={{ background:'var(--orange)' }} className="border-y-[3px] border-[#1D1D1D]">
@@ -291,7 +294,7 @@ function StatsStrip() {
 
 /* ─── HERO ────────────────────────────── */
 export default function LandingPage() {
-  const heroRef = useRef<HTMLDivElement>(null);
+  const heroRef = useRef(null);
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start','end start'] });
   const y = useTransform(scrollYProgress, [0,1], [0, 120]);
 
@@ -324,7 +327,6 @@ export default function LandingPage() {
       {/* HERO */}
       <section ref={heroRef} className="relative min-h-screen flex items-center pt-24 pb-10 overflow-hidden" style={{ background:'var(--cream)' }}>
         <FloatingShapes />
-        {/* Floating food emojis */}
         {FOODS.map((f,i) => (
           <div key={i} className={f.cls} style={{ position:'absolute', fontSize:f.size, zIndex:1, userSelect:'none', ...f.style }}>
             {f.emoji}
@@ -333,7 +335,6 @@ export default function LandingPage() {
 
         <div className="max-w-6xl mx-auto px-6 relative z-10 w-full">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            {/* Left text */}
             <div>
               <motion.div
                 initial={{ opacity:0, y:30 }}
@@ -396,13 +397,13 @@ export default function LandingPage() {
                   ))}
                 </div>
                 <div>
-                  <div className="font-black text-sm">2,450+ students</div>
-                  <div className="text-xs text-[#888]">using QuickBite daily</div>
+                  {/* Removed the fake "2,450+ students" claim — swap in a real count once you have signups */}
+                  <div className="font-black text-sm">Built for campus life</div>
+                  <div className="text-xs text-[#888]">Join QuickBite today</div>
                 </div>
               </motion.div>
             </div>
 
-            {/* Right mascot */}
             <motion.div
               initial={{ opacity:0, scale:0.8, rotate:5 }}
               animate={{ opacity:1, scale:1, rotate:0 }}
@@ -414,7 +415,6 @@ export default function LandingPage() {
                 style={{ width:440, height:480, border:'3px solid #1D1D1D', boxShadow:'8px 8px 0 #1D1D1D', background:'white' }}
               >
                 <Image src="/student-mascot.jpg" alt="Happy student with food" fill className="object-cover" />
-                {/* Overlay cards */}
                 <div className="absolute bottom-4 left-4 card p-3 flex items-center gap-2 bg-white bounce-in" style={{ boxShadow:'3px 3px 0 #1D1D1D' }}>
                   <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background:'var(--yellow)' }}>⚡</div>
                   <div>
@@ -427,7 +427,6 @@ export default function LandingPage() {
                   <div className="text-2xl font-black" style={{ color:'var(--orange)', fontFamily:'Syne' }}>8 min</div>
                 </div>
               </div>
-              {/* Decorative ring */}
               <div className="spin-slow absolute" style={{ width:520, height:520, border:'3px dashed rgba(255,107,0,0.3)', borderRadius:'50%' }} />
             </motion.div>
           </div>
@@ -460,7 +459,7 @@ export default function LandingPage() {
             </Link>
           </motion.div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {SAMPLE_FOODS.map((f,i) => <FoodCard key={f.id} item={f} delay={i*0.1} />)}
+            {FEATURED_FOODS.map((f,i) => <FoodCard key={f.id} item={f} delay={i*0.1} />)}
           </div>
         </div>
       </section>
@@ -518,7 +517,7 @@ export default function LandingPage() {
               Ready to skip<br/>
               <span style={{ color:'var(--yellow)' }}>the queue?</span>
             </h2>
-            <p className="text-green-200 text-lg mb-10">Join 2,450+ students who've already made the switch.</p>
+            <p className="text-green-200 text-lg mb-10">Order smarter. Wait less. Try QuickBite today.</p>
             <div className="flex flex-wrap gap-4 justify-center">
               <Link href="/login">
                 <button className="btn-primary text-lg px-10 py-5" style={{ background:'var(--orange)', fontSize:18 }}>
