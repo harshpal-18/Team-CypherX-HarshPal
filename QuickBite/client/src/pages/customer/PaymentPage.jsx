@@ -30,13 +30,28 @@ const PaymentPage = () => {
 
   const handlePay = async () => {
     setProcessing(true);
-    await new Promise(r => setTimeout(r, 1800));
-    const order = placeOrder(items, orderType, method, user);
-    setPlacedOrder(order);
-    clearCart();
-    addToast('Payment successful! Your order is placed 🎉', 'payment');
-    setStep(3);
-    setProcessing(false);
+    try {
+      await new Promise(r => setTimeout(r, 1800));
+      // NOTE: placeOrder is async (it calls the backend API and falls back to
+      // offline mode if that fails) — it must be awaited or `order` will be
+      // a pending Promise instead of the actual order object, which was why
+      // Order ID / Token / Est. Time / Total Paid showed up blank.
+      const order = await placeOrder(items, orderType, method, user, {
+        subtotal,
+        discount,
+        taxes,
+        total,
+      });
+      setPlacedOrder(order);
+      clearCart();
+      addToast('Payment successful! Your order is placed 🎉', 'payment');
+      setStep(3);
+    } catch (err) {
+      console.error('Payment failed:', err);
+      addToast('Something went wrong placing your order. Please try again.', 'error');
+    } finally {
+      setProcessing(false);
+    }
   };
 
   if (items.length === 0 && step !== 3) {
@@ -223,14 +238,18 @@ const PaymentPage = () => {
 
               <div className="card p-8 mb-6 inline-block">
                 <QRCodeSVG
-                  value={JSON.stringify({ orderId: placedOrder.id, token: placedOrder.token, total: placedOrder.total })}
+                  value={JSON.stringify({
+                    orderId: placedOrder.orderId || placedOrder.id,
+                    token: placedOrder.token,
+                    total: placedOrder.total,
+                  })}
                   size={180} level="H" includeMargin
                   fgColor="#ea580c"
                 />
                 <div className="mt-4 text-center">
                   <p className="text-xs text-gray-400 mb-1">Your Token</p>
                   <p className="font-display font-black text-4xl gradient-text">{placedOrder.token}</p>
-                  <p className="text-xs text-gray-400 mt-1">Order ID: {placedOrder.id}</p>
+                  <p className="text-xs text-gray-400 mt-1">Order ID: {placedOrder.orderId || placedOrder.id}</p>
                 </div>
               </div>
 
